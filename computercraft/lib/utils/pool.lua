@@ -1,9 +1,11 @@
 ---@class ThreadLike
 ---@field thread thread
+---@field running boolean
+local ThreadLike = {}
 
 ---@class Pool
 ---@field tasks {[thread]: true}
-Pool = {}
+local Pool = {}
 Pool.__index = Pool
 
 function Pool.new()
@@ -20,11 +22,15 @@ local function create_worker(task, on_complete)
       local type, value = coroutine.yield(table.unpack(last, 2))
       if type == 0 then
         last = { coroutine.resume(thread, value) }
+        if not task.running then
+          break
+        end
       elseif type == 1 then -- end execution
         break
       end
     end
 
+    task.running = false
     on_complete()
   end)
 end
@@ -40,7 +46,7 @@ end
 
 ---@param mainTask fun(): nil
 function Pool:loop(mainTask)
-  Pool:start({ thread = coroutine.create(mainTask) })
+  self:start({ thread = coroutine.create(mainTask), running = true })
 
   while true do
     local event = { os.pullEvent() }

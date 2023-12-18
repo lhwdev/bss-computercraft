@@ -1,10 +1,10 @@
-local Pool = require "pool"
+local Pool = require "lib.utils.pool"
 
 ---@class Thread : ThreadLike
 ---@field pool Pool
 ---@field thread thread
 ---@field running boolean
-Thread = {}
+local Thread = {}
 Thread.__index = Thread
 
 ---@param pool Pool

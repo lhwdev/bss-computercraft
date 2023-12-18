@@ -1,5 +1,8 @@
+local Pool = require "lib.utils.pool"
+local Thread = require "lib.utils.thread"
+
 --[[message format: table
-  type: "ping" | "reboot" | "start" | "stop" | "exec"
+  type: "ping" | "reboot" | "start" | "stop"
 ]]
 
 
@@ -8,7 +11,13 @@ return {
     local modem = peripheral.find("modem") or error("No modem attached", 0)
     modem.open(id)
 
-    local event_loop = function()
+    local event_pool = Pool.new()
+    ---@type Thread?
+    local work_thread = nil
+
+    print "Sync.joinMaster"
+
+    event_pool:loop(function()
       while true do
         local _, _, channel, replyChannel, message = os.pullEvent("modem_message")
         if channel == id then
@@ -18,18 +27,19 @@ return {
           elseif type == "reboot" then
             os.reboot()
           elseif type == "start" then
-            dofile("work/startup.lua")
+            if work_thread == nil then
+              work_thread = Thread.new(event_pool, function()
+                print "dofile work/startup.lua"
+                dofile("work/startup.lua")
+              end)
+            end
+          elseif type == "stop" then
+            if work_thread then
+              work_thread:stop()
+            end
           end
         end
       end
-    end
-
-    local work_runner_loop = function()
-      while true do
-
-      end
-    end
-
-    parallel.waitForAll(event_loop, work_runner_loop)
+    end)
   end
 }
