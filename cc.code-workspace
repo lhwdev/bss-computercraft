@@ -3,5 +3,11 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"extensions": {
+		"recommendations": [
+			"sumneko.lua",
+			"JackMacWindows.vscode-computercraft"
+		]
+	}
 }

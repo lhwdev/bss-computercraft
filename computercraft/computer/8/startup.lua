@@ -1,7 +1,7 @@
 local stressMeter = peripheral.wrap("front")
 rednet.open("modem_1")
 
-local targets = {peripheral.find("electric_motor")}
+local targets = { peripheral.find("electric_motor") }
 local motor = false
 
 local suPerOneMotorRpm = 64
@@ -35,10 +35,10 @@ function updateSpeed(speed)
     if speed == previousSpeed then
         return
     end
-    
+
     previousSpeed = speed
     print("updateSpeed", speed)
-    
+
     for i = 1, #targets do
         updateTargetSpeed(targets[i], speed)
     end
@@ -47,7 +47,7 @@ end
 os.startTimer(5)
 redstone.setOutput("top", true)
 
-_G.sleep(0.3)
+os.sleep(0.3)
 
 local timer = nil
 
@@ -76,12 +76,15 @@ while true do
             updateSpeed(1)
         end
     end
-    
+
     updateSpeedFacade()
-    
+
     while true do
         local event = os.pullEvent()
         if event == "redstone" or event == "timer" or event == "rednet_message" then
+            if event == "timer" then
+                os.startTimer(5)
+            end
             break
         end
     end

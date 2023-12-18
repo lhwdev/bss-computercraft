@@ -53,6 +53,7 @@ while true do
 
     if event == "timer" then
         update()
+        os.startTimer(5)
     elseif event == "redstone" then
         if redstone.getInput("bottom") then
             ---@diagnostic disable-next-line: param-type-mismatch

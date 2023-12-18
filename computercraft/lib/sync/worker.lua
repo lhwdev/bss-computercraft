@@ -1,9 +1,9 @@
 --[[message format: table
-  type: "ping" | "reboot" | "start" | "stop"
+  type: "ping" | "reboot" | "start" | "stop" | "exec"
 ]]
 
 
-Sync = {
+return {
   joinMaster = function(id)
     local modem = peripheral.find("modem") or error("No modem attached", 0)
     modem.open(id)
