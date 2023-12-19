@@ -4,5 +4,6 @@
   "peripheral.computer": 2,
   "peripheral.electric_motor": 47,
   "peripheral.modem": 1,
-  "peripheral.speaker": 11
+  "peripheral.speaker": 11,
+  "peripheral.Create_Station": 1
 }
