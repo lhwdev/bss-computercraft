@@ -5,25 +5,34 @@ local Thread = require "lib.utils.thread"
   type: "ping" | "reboot" | "start" | "stop"
 ]]
 
+local function dump(t)
+  local s = ""
+  for k, v in pairs(t) do
+    s = s .. tostring(k) .. "=" .. tostring(v) .. ","
+  end
+  return s
+end
+
 
 return {
-  joinMaster = function(id)
-    local modem = peripheral.find("modem") or error("No modem attached", 0)
-    modem.open(id)
+  join_master = function(from)
+    local modem_side = peripheral.getName(peripheral.find("modem"))
+    rednet.open(modem_side)
 
     local event_pool = Pool.new()
     ---@type Thread?
     local work_thread = nil
 
-    print "Sync.joinMaster"
+    print "sync.join_master"
 
     event_pool:loop(function()
       while true do
-        local _, _, channel, replyChannel, message = os.pullEvent("modem_message")
-        if channel == id then
+        local _, channel, message = os.pullEvent("rednet_message")
+        if channel == from then
           local type = message.type
+          print("received", type)
           if type == "ping" then
-            modem.transmit(replyChannel, 0, true)
+            rednet.send(channel, { id = message.id })
           elseif type == "reboot" then
             os.reboot()
           elseif type == "start" then
@@ -36,6 +45,7 @@ return {
           elseif type == "stop" then
             if work_thread then
               work_thread:stop()
+              work_thread = nil
             end
           end
         end

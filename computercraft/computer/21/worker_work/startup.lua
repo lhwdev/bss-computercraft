@@ -1,4 +1,4 @@
 while true do
   peripheral.find("speaker").playNote("harp")
-  os.sleep(5)
+  os.sleep(2)
 end

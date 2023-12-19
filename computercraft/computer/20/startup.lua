@@ -1,3 +1,3 @@
 local Sync = require "lib.sync.worker"
 
-Sync.joinMaster(21)
+Sync.join_master(21)
