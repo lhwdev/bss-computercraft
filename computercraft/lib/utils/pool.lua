@@ -64,6 +64,9 @@ local function create_pool_worker(pool, task)
   local worker
   worker = create_worker(task, function(success, result)
     pool.tasks[task.id] = nil
+    if not success then
+      error(result)
+    end
   end)
   return worker
 end
@@ -92,7 +95,10 @@ function Pool:loop(mainTask)
   while true do
     local event = { os.pullEvent() }
     for _, task in pairs(self.tasks) do
-      coroutine.resume(task, 0, event)
+      local success, result = coroutine.resume(task, 0, event)
+      if not success then
+        error(result)
+      end
     end
   end
 end

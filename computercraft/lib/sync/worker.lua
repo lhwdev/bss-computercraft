@@ -1,5 +1,6 @@
 local Pool = require "lib.utils.pool"
 local Thread = require "lib.utils.thread"
+local trace = require "lib.utils.trace"
 
 --[[message format: table
   type: "ping" | "reboot" | "start" | "stop"
@@ -25,6 +26,11 @@ return {
 
     print "sync.join_master"
 
+    Thread.new(pool, function()
+      os.sleep(0.5)
+      os.queueEvent("rednet_message", from, { type = "start" })
+    end)
+
     event_pool:loop(function()
       while true do
         local _, channel, message = os.pullEvent("rednet_message")
@@ -39,7 +45,15 @@ return {
             if work_thread == nil then
               work_thread = Thread.new(event_pool, function()
                 print "dofile work/startup.lua"
-                dofile("work/startup.lua")
+                local work, result = loadfile("work/startup.lua", "bt", _ENV)
+                if not work then
+                  print(result)
+                else
+                  trace.withTrace(function()
+                    work()
+                  end)
+                  print "work terminated"
+                end
               end)
             end
           elseif type == "stop" then
